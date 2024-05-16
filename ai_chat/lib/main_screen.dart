@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:ai_chat/models/config/gemini_config.dart';
 import 'package:ai_chat/models/config/gemini_safety_settings.dart';
 import 'package:ai_chat/models/gemini/gemini.dart';
-import 'package:ai_chat/api_key.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:rxdart/rxdart.dart';
@@ -48,8 +47,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     _initTts();
-    gemini = GoogleGemini(
-        apiKey: apiGeminiKey, safetySettings: [safety1], config: config);
+    gemini = GoogleGemini(safetySettings: [safety1], config: config);
     super.initState();
     // Lời chào từ Gemini
     textChat.add({
