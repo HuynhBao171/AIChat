@@ -52,14 +52,13 @@ class _MainScreenState extends State<MainScreen> {
     // Lời chào từ Gemini
     textChat.add({
       "role": "Gemini",
-      "text":
-          "Xin chào! Tôi ở đây để giúp bạn có trải nghiệm âm nhạc tuyệt vời.",
+      "text": "Hello! I'm here to help you.",
     });
     _speak(textChat[0]['text']);
   }
 
   Future _initTts() async {
-    await flutterTts.setLanguage("vi-VN");
+    await flutterTts.setLanguage("en-US");
   }
 
   @override
@@ -70,7 +69,15 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future _speak(String text) async {
-    await flutterTts.speak(text);
+    try {
+      _textController.clear();
+      await flutterTts.speak(text);
+      flutterTts.setCompletionHandler(() {
+        _startListening();
+      });
+    } catch (e) {
+      print('Lỗi phát âm: $e');
+    }
   }
 
   void fromText({required String query, required String user}) {
@@ -87,7 +94,6 @@ class _MainScreenState extends State<MainScreen> {
     gemini.generateFromText(query).then((value) {
       setState(() {
         loading = false;
-        _textController.clear();
 
         textChat.add({
           "role": "Gemini",
@@ -96,7 +102,7 @@ class _MainScreenState extends State<MainScreen> {
       });
       scrollToTheEnd();
       _speak(value.text);
-      _startListening();
+      // _startListening();
     }).catchError((error, stackTrace) {
       setState(() {
         loading = false;
@@ -115,9 +121,10 @@ class _MainScreenState extends State<MainScreen> {
       bool available = await _speechToText.initialize();
       if (available) {
         setState(() => _isListening = true);
-        _textController.clear(); // Clear textController khi bắt đầu ghi âm
+        // _textController.clear();
         _speechToText.listen(
           onResult: (result) {
+            _speechStream.add('');
             _speechStream.add(result.recognizedWords);
             if (result.recognizedWords.toUpperCase() == 'STOP') {
               _stopListening();

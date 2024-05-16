@@ -29,10 +29,10 @@ class GoogleGemini {
 
     GeminiHttpResponse httpResponse = await apiGenerateText(
         query: query,
-        apiKey: apiKey,
+        apiKey: apiKey, 
         config: config,
         safetySettings: safetySettings,
-        model: "gemini-pro-v2");
+        model: "gemini-pro");
 
     if (httpResponse.candidates.isNotEmpty &&
         httpResponse.candidates[0].content != null &&
