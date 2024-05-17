@@ -48,9 +48,7 @@
 	<key>NSBluetoothAlwaysUsageDescription</key>
     <string>The app uses bluetooth to find, connect and transfer data between different devices</string>
     <key>NSBluetoothPeripheralUsageDescription</key>
-    <string>The app uses bluetooth to find, connect and transfer data between different devices</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Some message to describe why you need this permission</string>
+    <string>The app uses bluetooth to find, connect and transfer data between different devices</string>>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This application needs to access your microphone</string>
 	<key>UIBackgroundModes</key>
