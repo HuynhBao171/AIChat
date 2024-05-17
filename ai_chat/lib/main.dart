@@ -1,9 +1,11 @@
 import 'package:ai_chat/main_screen.dart';
+import 'package:ai_chat/services/background_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
+  await initializeService();
   runApp(const MyApp());
 }
 

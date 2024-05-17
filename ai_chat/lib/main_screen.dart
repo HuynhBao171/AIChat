@@ -4,6 +4,7 @@ import 'package:ai_chat/models/config/gemini_config.dart';
 import 'package:ai_chat/models/config/gemini_safety_settings.dart';
 import 'package:ai_chat/models/gemini/gemini.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -167,6 +168,43 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
         appBar: AppBar(
           title: const Text('Main Screen'),
+        ),
+        drawer: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              const DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                ),
+                child: Text('Drawer Header'),
+              ),
+              ListTile(
+                title: ElevatedButton(
+                  child: const Text("Set As Foreground"),
+                  onPressed: () {
+                    FlutterBackgroundService().invoke("setAsForeground");
+                  },
+                ),
+              ),
+              ListTile(
+                title: ElevatedButton(
+                  child: const Text("Set As Background"),
+                  onPressed: () {
+                    FlutterBackgroundService().invoke("setAsBackground");
+                  },
+                ),
+              ),
+              ListTile(
+                title: ElevatedButton(
+                  child: const Text("Stop Service"),
+                  onPressed: () async {
+                    FlutterBackgroundService().invoke("stopService");
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
         body: Column(
           children: [
