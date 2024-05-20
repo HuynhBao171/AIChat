@@ -20,15 +20,49 @@ List<Map<String, dynamic>> _convertSafetySettings(
 
 /// Generate Text from a query with Gemini Api and http
 /// requires a query, an apiKey,
+// Future<GeminiHttpResponse> apiGenerateText(
+//     {required String query,
+//     required String apiKey,
+//     required GenerationConfig? config,
+//     required List<SafetySettings>? safetySettings,
+//     String model = 'gemini-1.5-pro'}) async {
+//   var url = Uri.https(
+//       Constants.endpoit,
+//       'v1/projects/plasma-card-407515/locations/{REGION}/publishers/google/models/$model',
+//       {'key': apiKey});
+
+//   log("--- Generating ---");
+
+//   var response = await http.post(url,
+//       body: json.encode({
+//         "contents": [
+//           {
+//             "parts": [
+//               {"text": query}
+//             ]
+//           }
+//         ],
+//         "safetySettings": _convertSafetySettings(safetySettings ?? []),
+//         "generationConfig": config?.toJson()
+//       }));
+
+//   log("--- Http Status ${response.statusCode} ---");
+
+//   if (response.statusCode == 200) {
+//     return GeminiHttpResponse.fromJson(json.decode(response.body));
+//   } else {
+//     throw Exception(
+//         'Failed to Generate Text: ${response.statusCode}\n${response.body}');
+//   }
+// }
+
 Future<GeminiHttpResponse> apiGenerateText(
     {required String query,
     required String apiKey,
     required GenerationConfig? config,
     required List<SafetySettings>? safetySettings,
-    String model = 'gemini-1.5-pro'}) async {
-  var url = Uri.https(
-      Constants.endpoit,
-      'v1/projects/plasma-card-407515/locations/{REGION}/publishers/google/models/$model',
+    String model = 'gemini-pro'}) async {
+  var url = Uri.https(Constants.endpoit, 'v1beta/models/$model:generateContent',
       {'key': apiKey});
 
   log("--- Generating ---");
