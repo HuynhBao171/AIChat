@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:ai_chat/models/config/gemini_config.dart';
 import 'package:ai_chat/models/config/gemini_safety_settings.dart';
@@ -28,11 +30,34 @@ class GoogleGemini {
     String text = '';
 
     GeminiHttpResponse httpResponse = await apiGenerateText(
-        query: query,
-        apiKey: apiKey, 
-        config: config,
-        safetySettings: safetySettings,
-        model: "gemini-pro");
+      query: query,
+      apiKey: apiKey,
+      config: config,
+      safetySettings: safetySettings,
+    );
+
+    if (httpResponse.candidates.isNotEmpty &&
+        httpResponse.candidates[0].content != null &&
+        httpResponse.candidates[0].content!['parts'] != null) {
+      for (var part in httpResponse.candidates[0].content!['parts']) {
+        text += part['text'];
+      }
+    }
+
+    GeminiResponse response =
+        GeminiResponse(text: text, response: httpResponse);
+    return response;
+  }
+
+  Future<GeminiResponse> generateFromAudio(File audioFile) async {
+    String text = '';
+
+    GeminiHttpResponse httpResponse = await apiGenerateAudio(
+      audioFile: audioFile,
+      apiKey: apiKey,
+      config: config,
+      safetySettings: safetySettings,
+    );
 
     if (httpResponse.candidates.isNotEmpty &&
         httpResponse.candidates[0].content != null &&

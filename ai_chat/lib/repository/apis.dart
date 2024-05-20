@@ -8,7 +8,6 @@ import 'package:ai_chat/models/config/gemini_safety_settings.dart';
 import 'package:ai_chat/models/gemini/gemini_reponse.dart';
 import 'package:http/http.dart' as http;
 
-
 /// Convert safetySettings List int a json
 List<Map<String, dynamic>> _convertSafetySettings(
     List<SafetySettings> safetySettings) {
@@ -26,8 +25,10 @@ Future<GeminiHttpResponse> apiGenerateText(
     required String apiKey,
     required GenerationConfig? config,
     required List<SafetySettings>? safetySettings,
-    String model = 'gemini-pro'}) async {
-  var url = Uri.https(Constants.endpoit, 'v1beta/models/$model:generateContent',
+    String model = 'gemini-1.5-pro'}) async {
+  var url = Uri.https(
+      Constants.endpoit,
+      'v1/projects/plasma-card-407515/locations/{REGION}/publishers/google/models/$model',
       {'key': apiKey});
 
   log("--- Generating ---");
@@ -63,34 +64,33 @@ String _convertIntoBase64(File file) {
   return base64File;
 }
 
-/// Generate Text from a query with Gemini pro-vision model
-/// requires an image File, and a query
-Future<GeminiHttpResponse> apiGenerateTextAndImages(
-    {required String query,
+Future<GeminiHttpResponse> apiGenerateAudio(
+    {required File audioFile,
     required String apiKey,
-    required File image,
     required GenerationConfig? config,
     required List<SafetySettings>? safetySettings,
-    String model = 'gemini-pro-vision'}) async {
-  var url = Uri.https(Constants.endpoit, 'v1beta/models/$model:generateContent',
+    String model = 'gemini-1.5-pro'}) async {
+  var url = Uri.https(
+      Constants.endpoit,
+      'v1/projects/plasma-card-407515/locations/asia-southeast1/publishers/google/models/$model',
       {'key': apiKey});
 
-  log("--- Generating From Text and Image ---");
+  log("--- Generating from audio ---");
 
-  var base64Imge = _convertIntoBase64(image);
+  // Convert audio file to base64
+  String base64Audio = _convertIntoBase64(audioFile);
 
   var response = await http.post(url,
       body: json.encode({
         "contents": [
           {
             "parts": [
-              {"text": query},
               {
-                "inline_data": {
-                  "mime_type": "image/jpeg",
-                  "data": base64Imge,
+                "audio": {
+                  "audioEncoding": "LINEAR16",
+                  "audioContent": base64Audio
                 }
-              },
+              }
             ]
           }
         ],

@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:ai_chat/main.dart';
+import 'package:ai_chat/services/listening_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_background_service_android/flutter_background_service_android.dart';
@@ -9,20 +11,16 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
-
-
-
-Future<void> initializeService() async {
+Future<void> backgroundService() async {
   final service = FlutterBackgroundService();
 
   /// OPTIONAL, using custom notification channel id
   const AndroidNotificationChannel channel = AndroidNotificationChannel(
-    'my_foreground', // id
-    'MY FOREGROUND SERVICE', // title
-    description:
-        'This channel is used for important notifications.', // description
-    importance: Importance.low, // importance must be at low or higher level
-  );
+      'voice_detection_channel',
+      'Voice Detection',
+      description: 'Notification channel for voice detection service',
+      importance: Importance.low,
+    );
 
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
@@ -50,9 +48,9 @@ Future<void> initializeService() async {
       autoStart: true,
       isForegroundMode: true,
 
-      notificationChannelId: 'my_foreground',
-      initialNotificationTitle: 'AWESOME SERVICE',
-      initialNotificationContent: 'Initializing',
+      notificationChannelId: 'voice_detection_channel',
+      initialNotificationTitle: 'Voice Detection',
+      initialNotificationContent: 'Listening for voice commands...',
       foregroundServiceNotificationId: 888,
     ),
     iosConfiguration: IosConfiguration(
@@ -66,7 +64,6 @@ Future<void> initializeService() async {
       onBackground: onIosBackground,
     ),
   );
-  
 }
 
 // to ensure this is executed
@@ -103,6 +100,8 @@ void onStart(ServiceInstance service) async {
 
   if (service is AndroidServiceInstance) {
     service.on('setAsForeground').listen((event) {
+      final ListeningService listeningService = getIt<ListeningService>();
+      listeningService.startListening();
       service.setAsForegroundService();
     });
 
@@ -138,7 +137,7 @@ void onStart(ServiceInstance service) async {
         // if you don't using custom notification, uncomment this
         service.setForegroundNotificationInfo(
           title: "My App Service",
-          content: "Updated at ${DateTime.now()}",
+          content: "Voice Detection",
         );
       }
     }
