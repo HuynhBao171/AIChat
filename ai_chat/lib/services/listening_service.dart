@@ -12,6 +12,7 @@ class ListeningService {
   bool _speechEnabled = false;
   bool _isProcessed = true;
   final speechSubject = BehaviorSubject<String>();
+  DateTime? _lastSpeechTime;
 
   final SpeakingService speakingService = getIt<SpeakingService>();
   final GeminiService gemini = getIt<GeminiService>();
@@ -38,8 +39,11 @@ class ListeningService {
   void _onSpeechResult(SpeechRecognitionResult result) {
     speechSubject.add(result.recognizedWords);
     logger.i("Đang nghe: ${result.recognizedWords}");
+    _lastSpeechTime = DateTime.now();
 
-    if (result.finalResult && _isProcessed) {
+    if ((result.finalResult && _isProcessed) ||
+        (_lastSpeechTime != null &&
+            DateTime.now().difference(_lastSpeechTime!).inSeconds >= 2)) {
       _speechToText.stop(); // Dừng lắng nghe khi kết thúc câu
       _isProcessed = false;
 
