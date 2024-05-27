@@ -16,11 +16,11 @@ Future<void> backgroundService() async {
 
   /// OPTIONAL, using custom notification channel id
   const AndroidNotificationChannel channel = AndroidNotificationChannel(
-      'voice_detection_channel',
-      'Voice Detection',
-      description: 'Notification channel for voice detection service',
-      importance: Importance.low,
-    );
+    'voice_detection_channel',
+    'Voice Detection',
+    description: 'Notification channel for voice detection service',
+    importance: Importance.low,
+  );
 
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
@@ -106,6 +106,8 @@ void onStart(ServiceInstance service) async {
     });
 
     service.on('setAsBackground').listen((event) {
+      // final ListeningService listeningService = getIt<ListeningService>();
+      // listeningService.startListening();
       service.setAsBackgroundService();
     });
   }

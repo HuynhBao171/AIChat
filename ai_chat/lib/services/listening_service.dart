@@ -12,12 +12,11 @@ class ListeningService {
   bool _speechEnabled = false;
   bool _isProcessed = true;
   final speechSubject = BehaviorSubject<String>();
-  DateTime? _lastSpeechTime;
 
   final SpeakingService speakingService = getIt<SpeakingService>();
   final GeminiService gemini = getIt<GeminiService>();
 
-  Stream<String> get speechStream => speechSubject.stream;
+  // Stream<String> get speechStream => speechSubject.stream;
 
   Future<void> initSpeech() async {
     _speechEnabled = await _speechToText.initialize();
@@ -39,12 +38,9 @@ class ListeningService {
   void _onSpeechResult(SpeechRecognitionResult result) {
     speechSubject.add(result.recognizedWords);
     logger.i("Đang nghe: ${result.recognizedWords}");
-    _lastSpeechTime = DateTime.now();
 
-    if ((result.finalResult && _isProcessed) ||
-        (_lastSpeechTime != null &&
-            DateTime.now().difference(_lastSpeechTime!).inSeconds >= 2)) {
-      _speechToText.stop(); // Dừng lắng nghe khi kết thúc câu
+    if (result.finalResult && _isProcessed) {
+      stopListening();
       _isProcessed = false;
 
       String recognizedWords = result.recognizedWords;
@@ -67,7 +63,6 @@ class ListeningService {
           print("Lỗi: ${error.toString()}");
         });
       }
-      stopListening();
     }
   }
 
@@ -79,5 +74,6 @@ class ListeningService {
   void stopListening() {
     logger.i("Ngừng lắng nghe");
     _speechToText.stop();
+    speechSubject.add('');
   }
 }
