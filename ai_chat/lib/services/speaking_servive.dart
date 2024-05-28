@@ -14,14 +14,14 @@ class SpeakingService {
     try {
       isSpeaking = true;
       await flutterTts.speak(text);
-      // flutterTts.setIosAudioCategory(
-      //     IosTextToSpeechAudioCategory.playAndRecord,
-      //     [
-      //       IosTextToSpeechAudioCategoryOptions.allowBluetooth,
-      //       IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
-      //       IosTextToSpeechAudioCategoryOptions.mixWithOthers
-      //     ],
-      //     IosTextToSpeechAudioMode.voicePrompt);
+      flutterTts.setIosAudioCategory(
+          IosTextToSpeechAudioCategory.playAndRecord,
+          [
+            IosTextToSpeechAudioCategoryOptions.allowBluetooth,
+            IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
+            IosTextToSpeechAudioCategoryOptions.mixWithOthers
+          ],
+          IosTextToSpeechAudioMode.voicePrompt);
       flutterTts.setCompletionHandler(() {
         isSpeaking = false;
         getIt<ListeningService>().startListening();

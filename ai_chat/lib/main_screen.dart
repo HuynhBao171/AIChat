@@ -223,11 +223,6 @@ class _MainScreenState extends State<MainScreen> {
                         isListening = !isListening;
                         if (isListening) {
                           listeningService.startListening();
-                          listeningService.speechSubject.listen((speechText) {
-                            if (speechText != '') {
-                              fromText(query: speechText, user: 'User');
-                            }
-                          });
                         } else {
                           listeningService.stopListening();
                         }
