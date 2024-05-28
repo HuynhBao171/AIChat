@@ -124,6 +124,7 @@ class ListeningService {
   String _recognizedWords = '';
   bool _isProcessing = false;
   final speechSubject = BehaviorSubject<String>();
+  Timer? _debounceTimer;
 
   final SpeakingService speakingService = getIt<SpeakingService>();
   final GeminiService gemini = getIt<GeminiService>();
@@ -173,12 +174,23 @@ class ListeningService {
     if (result.finalResult) {
       logger.i("Final result received, processing and speaking...");
       _processAndSpeak();
+    } else {
+      _restartDebounceTimer();
     }
+  }
+
+  void _restartDebounceTimer() {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(seconds: 3), () {
+      logger.i("Debounce timer expired, processing and speaking...");
+      _processAndSpeak();
+    });
   }
 
   void dispose() {
     logger.i("Disposing ListeningService");
     _speechToText.stop();
+    _debounceTimer?.cancel();
     speechSubject.close();
   }
 
@@ -233,6 +245,7 @@ class ListeningService {
   void stopListening() {
     logger.i("Stopping listening");
     _speechToText.cancel();
+    _debounceTimer?.cancel();
     speechSubject.add('');
   }
 }
