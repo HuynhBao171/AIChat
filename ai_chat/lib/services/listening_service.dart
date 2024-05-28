@@ -132,10 +132,13 @@ class ListeningService {
   Stream<String> get speechStream => speechSubject.stream;
 
   Future<void> initSpeech() async {
+    logger.i('Initializing speech');
     _speechEnabled = await _speechToText.initialize(
       onError: _onError,
       onStatus: _onStatus,
     );
+    logger
+        .i('Speech initialization complete: _speechEnabled = $_speechEnabled');
   }
 
   void _onStatus(String status) {
@@ -143,29 +146,33 @@ class ListeningService {
   }
 
   void _onError(SpeechRecognitionError errorNotification) {
-    logger.i("Error: ${errorNotification.errorMsg}\n");
+    logger.e("Speech Recognition Error: ${errorNotification.errorMsg}");
   }
 
   Future<void> startListening() async {
-    logger.i("Bắt đầu lắng nghe");
+    logger.i("Starting listening");
     if (!_speechEnabled) {
-      print("Nhận diện tiếng nói không khả dụng.");
+      logger.w("Speech recognition is not available");
       return;
     }
 
     if (!_speechToText.isListening) {
+      logger.i("Start listening...");
       await _speechToText.listen(onResult: _onSpeechResult);
     }
   }
 
   void _onSpeechResult(SpeechRecognitionResult result) {
     _recognizedWords = result.recognizedWords;
-    speechSubject.add(_recognizedWords); 
-    logger.i("Đang nghe: $_recognizedWords");
+    speechSubject.add(_recognizedWords);
+    logger.i(
+        "Recognized words: $_recognizedWords, Final Result: ${result.finalResult}");
 
     if (result.finalResult) {
+      logger.i("Final result received, processing and speaking...");
       _processAndSpeak();
     } else {
+      logger.i("Restarting debounce timer");
       _restartDebounceTimer();
     }
   }
@@ -173,9 +180,11 @@ class ListeningService {
   void _restartDebounceTimer() {
     _debounceTimer?.cancel();
     _debounceTimer = Timer(const Duration(seconds: 3), _processAndSpeak);
+    logger.i("Debounce timer restarted");
   }
 
   void dispose() {
+    logger.i("Disposing ListeningService");
     _speechToText.stop();
     _debounceTimer?.cancel();
     speechSubject.close();
@@ -183,13 +192,16 @@ class ListeningService {
 
   Future<void> _processAndSpeak() async {
     _debounceTimer?.cancel();
+    logger.i("Processing and speaking, recognized words: $_recognizedWords");
 
     if (_recognizedWords.isNotEmpty &&
         _recognizedWords.toUpperCase() != "STOP") {
       if (_isProcessing) {
+        logger.i("Already processing, skipping this request");
         return;
       }
       _isProcessing = true;
+      logger.i("Processing request: $_recognizedWords");
 
       chatStream.sink.add([
         ...chatStream.value,
@@ -198,7 +210,7 @@ class ListeningService {
 
       try {
         final response = await gemini.generateFromText(_recognizedWords);
-        logger.i("Gemini: ${response.text}, $_recognizedWords");
+        logger.i("Gemini response: ${response.text}");
 
         speakingService.speak(response.text);
 
@@ -207,20 +219,28 @@ class ListeningService {
           {"role": "Gemini", "text": response.text},
         ]);
       } catch (error) {
+        logger.e("Error processing request: $error");
+
         speakingService.speak("Đã xảy ra lỗi! Vui lòng thử lại.");
         print("Lỗi: ${error.toString()}");
       } finally {
         _recognizedWords = '';
         _isProcessing = false;
-        startListening(); 
+        logger.i("Processing complete, starting listening again");
+
+        startListening();
       }
+    } else if (_recognizedWords.toUpperCase() == "STOP") {
+      logger.i("Stop command received, stopping listening");
+      stopListening();
     } else {
-      startListening(); 
+      logger.i("Recognized words empty, starting listening again");
+      startListening();
     }
   }
 
   void stopListening() {
-    logger.i("Ngừng lắng nghe");
+    logger.i("Stopping listening");
     _speechToText.cancel();
     speechSubject.add('');
   }
