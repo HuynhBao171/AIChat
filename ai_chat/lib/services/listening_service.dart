@@ -122,7 +122,6 @@ class ListeningService {
   final SpeechToText _speechToText = SpeechToText();
   bool _speechEnabled = false;
   String _recognizedWords = '';
-  Timer? _debounceTimer;
   bool _isProcessing = false;
   final speechSubject = BehaviorSubject<String>();
 
@@ -163,6 +162,9 @@ class ListeningService {
   }
 
   void _onSpeechResult(SpeechRecognitionResult result) {
+    if (speakingService.isSpeaking) {
+      return;
+    }
     _recognizedWords = result.recognizedWords;
     speechSubject.add(_recognizedWords);
     logger.i(
@@ -171,27 +173,16 @@ class ListeningService {
     if (result.finalResult) {
       logger.i("Final result received, processing and speaking...");
       _processAndSpeak();
-    } else {
-      logger.i("Restarting debounce timer");
-      _restartDebounceTimer();
     }
-  }
-
-  void _restartDebounceTimer() {
-    _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(seconds: 3), _processAndSpeak);
-    logger.i("Debounce timer restarted");
   }
 
   void dispose() {
     logger.i("Disposing ListeningService");
     _speechToText.stop();
-    _debounceTimer?.cancel();
     speechSubject.close();
   }
 
   Future<void> _processAndSpeak() async {
-    _debounceTimer?.cancel();
     logger.i("Processing and speaking, recognized words: $_recognizedWords");
 
     if (_recognizedWords.isNotEmpty &&
