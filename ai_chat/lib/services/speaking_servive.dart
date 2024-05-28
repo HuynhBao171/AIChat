@@ -12,6 +12,14 @@ class SpeakingService {
   Future<void> speak(String text) async {
     try {
       await flutterTts.speak(text);
+      flutterTts.setIosAudioCategory(
+          IosTextToSpeechAudioCategory.playAndRecord,
+          [
+            IosTextToSpeechAudioCategoryOptions.allowBluetooth,
+            IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
+            IosTextToSpeechAudioCategoryOptions.mixWithOthers
+          ],
+          IosTextToSpeechAudioMode.voicePrompt);
       flutterTts.setCompletionHandler(() {
         getIt<ListeningService>().startListening();
       });
