@@ -51,7 +51,7 @@ class ListeningService {
 
       await _speechToText.listen(
           onResult: _onSpeechResult,
-          pauseFor: const Duration(seconds: 5),
+          // pauseFor: const Duration(seconds: 5),
           // listenFor: const Duration(seconds: 5),
           listenOptions: SpeechListenOptions(
             listenMode: ListenMode.deviceDefault,
@@ -130,14 +130,11 @@ class ListeningService {
         _isProcessing = false;
         logger.i("Processing complete, starting listening again");
 
-        startListening();
       }
     } else if (_recognizedWords.toUpperCase() == "STOP") {
       logger.i("Stop command received, stopping listening");
-      stopListening();
     } else {
       logger.i("Recognized words empty, starting listening again");
-      startListening();
     }
   }
 

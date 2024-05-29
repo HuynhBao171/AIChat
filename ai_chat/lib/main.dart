@@ -1,4 +1,5 @@
 import 'package:ai_chat/main_screen.dart';
+import 'package:ai_chat/services/deepgram_service.dart';
 import 'package:ai_chat/services/gemini_service.dart';
 import 'package:ai_chat/services/listening_service.dart';
 import 'package:ai_chat/services/speaking_servive.dart';
@@ -11,11 +12,13 @@ import 'package:rxdart/rxdart.dart';
 
 final getIt = GetIt.instance;
 final chatStream = BehaviorSubject<List<Map<String, String>>>();
+final textStream = BehaviorSubject<String>();
 
 setupGetIt() async {
   getIt.registerSingleton<GeminiService>(GeminiService());
   getIt.registerSingleton<SpeakingService>(SpeakingService());
   getIt.registerSingleton<ListeningService>(ListeningService());
+  getIt.registerSingleton<DeepgramService>(DeepgramService());
   getIt.registerLazySingleton<Logger>(() => Logger(
         printer: PrettyPrinter(
             methodCount: 2,

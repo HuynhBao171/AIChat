@@ -1,5 +1,6 @@
 import 'package:ai_chat/main.dart';
 import 'package:ai_chat/services/background_service.dart';
+import 'package:ai_chat/services/deepgram_service.dart';
 import 'package:ai_chat/services/gemini_service.dart';
 import 'package:ai_chat/services/listening_service.dart';
 import 'package:ai_chat/services/speaking_servive.dart';
@@ -16,6 +17,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   final ListeningService listeningService = getIt<ListeningService>();
   final SpeakingService speakingService = getIt<SpeakingService>();
+  final DeepgramService deepgramService = getIt<DeepgramService>();
   final GeminiService gemini = getIt<GeminiService>();
 
   bool loading = false;
@@ -36,9 +38,10 @@ class _MainScreenState extends State<MainScreen> {
         "text": "Hello! I'm here to help you.",
       },
     ]);
-    speakingService.speak(chatStream.stream.value[0]['text']!);
+    // speakingService.speak(chatStream.stream.value[0]['text']!);
+    deepgramService.speakFromText(chatStream.stream.value[0]['text']!);
     isListening = !isListening;
-    listeningService.initSpeech();
+    // listeningService.initSpeech();
   }
 
   @override
@@ -195,8 +198,9 @@ class _MainScreenState extends State<MainScreen> {
                 children: [
                   Expanded(
                     child: StreamBuilder<String>(
-                      stream: listeningService.speechSubject
-                          .stream, // Sử dụng _speechSubject.stream
+                      // stream: listeningService.speechSubject
+                      //     .stream, // Sử dụng _speechSubject.stream
+                      stream: textStream.stream,
                       builder: (context, snapshot) {
                         _textController.text = snapshot.data ?? '';
                         return TextField(
@@ -222,9 +226,11 @@ class _MainScreenState extends State<MainScreen> {
                       setState(() {
                         isListening = !isListening;
                         if (isListening) {
-                          listeningService.startListening();
+                          // listeningService.startListening();
+                          deepgramService.startStream();
                         } else {
-                          listeningService.stopListening();
+                          // listeningService.stopListening();
+                          deepgramService.stopStream();
                         }
                       });
                     },
